@@ -94,8 +94,8 @@ public class Course extends FragmentActivity implements LocationListener,GoogleM
         endPoint.setLatitude(hole.getPosition().latitude);  //sets the Latitude of the location to the Markers Latitude.
         endPoint.setLongitude(hole.getPosition().longitude);//sets the Longitude of the location to the Markers Longitude.
         temp = me.distanceTo(endPoint); // assigns the distanceTo to the temp variable.
-
-        return temp; //returns the distance between the two points.
+        int temp2 = ((int) temp);
+        return temp2; //returns the distance between the two points.
     }
 
     @Override

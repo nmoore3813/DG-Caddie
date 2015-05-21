@@ -1,13 +1,12 @@
 package a.dgcaddy;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.app.Activity;
-import android.content.Intent;
 
 
 public class MainMenuActivity extends Activity implements android.view.View.OnClickListener{
@@ -29,7 +28,7 @@ public class MainMenuActivity extends Activity implements android.view.View.OnCl
         button = (Button) findViewById(R.id.button);
         button.setOnClickListener(this);
 
-        button2 = (Button) findViewById(R.id.button2);
+
 
     }
 
