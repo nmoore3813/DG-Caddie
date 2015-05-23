@@ -7,8 +7,10 @@ import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -19,10 +21,11 @@ public class Course extends FragmentActivity implements LocationListener,GoogleM
     Marker hole; //declaration of the hole marker so that we know where we need to get to.
     TextView distanceTo;
     TextView Recommendation;
-    private final static int INTERVAL = 1000 * 5; //number of seconds for an interval
+    private final static int INTERVAL = 1000 * 3; //number of seconds for an interval
     Handler mHandler = new Handler();
     int tempThing; // This is used So that we can call the marker creation after the mMap has become != null.'
 //    protected LocationManager locationManager;  //Used with the onLocationChanged Method.
+    Location lastHolePosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +49,13 @@ public class Course extends FragmentActivity implements LocationListener,GoogleM
         public void run() {
             //Having tempThing be equal to 4 allows the device 20 seconds to set up the map and get
             //the phones location before trying to find the location and throwing a null pointer exception.
-            if(tempThing == 4){drawMarker(mMap.getMyLocation()); }
+            if(tempThing == 3){
+                drawMarker(mMap.getMyLocation());
+                lastHolePosition = mMap.getMyLocation();
+                LatLng temp = new LatLng(lastHolePosition.getLatitude(),lastHolePosition.getLongitude());
+                mMap.animateCamera(CameraUpdateFactory
+                        .newLatLngZoom(new LatLng(lastHolePosition.getLatitude(),lastHolePosition.getLongitude()),18));}
+            if(tempThing > 4 && hole == null){drawMarker(lastHolePosition);}
 
             //This is to help you know that the method is being called properly and also lets you know the marker
             //hasn't been dropped/created.
@@ -158,14 +167,20 @@ public class Course extends FragmentActivity implements LocationListener,GoogleM
      *
      * @param location  This is the location being passed in to make the marker.
      */
-    private void drawMarker(Location location){
-
+    private void drawMarker(Location location)throws NullPointerException{
+        if(location == null){
+            throw new NullPointerException("location is null");
+        }
         //This Sets the position of the hole marker in front of what ever location passed in .0005 north of the location.
         LatLng holePosition = new LatLng(location.getLatitude()+.0005,location.getLongitude() );
 
         //This creates the marker using the hole position above this also sets
         //the snippet of the marker to a custom message at the start of the app.
-        hole = mMap.addMarker(new MarkerOptions().position(holePosition).snippet("Drag this marker to the hole you are playing.").draggable(true));
+        hole = mMap.addMarker(new MarkerOptions().position(holePosition)
+                .title("Drag this marker to the end of the hole you are playing.")
+                .draggable(true)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.diskmarker)));
+        hole.showInfoWindow();
 
     }
 
@@ -207,6 +222,9 @@ public class Course extends FragmentActivity implements LocationListener,GoogleM
 
         //updates the location of the marker when it is done being dragged.
         hole.setPosition(marker.getPosition());
+        lastHolePosition.setLatitude(marker.getPosition().latitude);
+        lastHolePosition.setLongitude(marker.getPosition().longitude);
+        if (hole.isInfoWindowShown() == true){hole.hideInfoWindow();}
     }
 
 }
